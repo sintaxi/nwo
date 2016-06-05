@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+var surge = require("surge")({ name: "P.W.A." })
+
+surge(process.argv.slice(2))
