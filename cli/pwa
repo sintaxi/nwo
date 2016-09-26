@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+var fs            = require("fs")
+var microplatform = require("./microplatform")
+
+microplatform({
+  cmd: "pwa",
+  name: "pwa platform",
+  domain: "pwa.sh",
+  
+  init: function(projectDir, done){
+    fs.writeFile(sourceDir + "/index.html", "<!doctype html><h1>hello world</h1>", function(err){
+      return done()
+    })
+  },
+
+  compile: function(sourceDir, targetDir, done){
+    return done()
+  },
+
+  serve: function(sourceDir, done){
+    var app = express()
+    app.use(express.static(sourceDir))
+    return app.listen(argv, function(){
+      done()
+    })
+  }
+
+})()

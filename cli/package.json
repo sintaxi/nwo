@@ -1,0 +1,25 @@
+{
+  "name": "pwa",
+  "version": "1.1.0",
+  "description": "open echosystem for an open web. (WIP)",
+  "author": "Brock Whitten <brock@sintaxi.com>",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "",
+    "fs-extra": "",
+    "minimist": "^1.2.0",
+    "surge": "",
+    "yargs": "^5.0.0"
+  },
+  "bin": {
+    "pwa": "./pwa"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sintaxi/pwa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sintaxi/pwa/issues"
+  },
+  "homepage": "https://github.com/sintaxi/pwa#readme"
+}
