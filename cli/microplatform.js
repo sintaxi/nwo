@@ -1,14 +1,18 @@
 
-var surge = require("surge")
-var pkg = require("./package.json")
-var chalk = require("chalk")
-var minimist = require("minimist")
+var surge     = require("surge")
+var pkg       = require("./package.json")
+var chalk     = require("chalk")
+var minimist  = require("minimist")
+var read      = require("read")
+var path      = require("path")
+var fse       = require("fs-extra")
+var tmp       = require("tmp")
 
 module.exports = function(config){
-
-  var cmd      = config.cmd     || "foo"
+  
+  var domain   = config.domain  || "surge.sh"
+  var cmd      = config.cmd     || domain.split(".")[0]
   var name     = config.name    || cmd + " Platform"
-  var domain   = config.domain  || "pwa.sh"
 
   var platform = surge({
     name:   name,
@@ -18,20 +22,23 @@ module.exports = function(config){
   var help = function(){
     console.log()
     console.log(chalk.bold("  "+ name +" " +chalk.grey("v" + pkg.version)) + chalk.grey(" - powered by surge.sh "))
-    console.log(chalk.grey("  Dev server and CDN enabled project publishing to"), chalk.underline.green(domain))
+    console.log(chalk.grey("  dev server & web publishing to"), chalk.underline.green(domain))
     console.log()
-    // console.log(chalk.grey("  Usage:"))
-    // console.log("    "+ name +" <source> [domain|output]")
     console.log(chalk.grey("  Usage:"))
     console.log("    "+ cmd +" <source>             Starts dev server on <source> directory")
     console.log("    "+ cmd +" <source> <domain>    Publishes <source> directory to https://<domain>")
-    console.log("    "+ cmd +" <source> <output>    Compiles <source> into <output>")
-    console.log("    "+ cmd +" <source> _           Prompt for publishing to random _." + domain, "subdomain")
+
+    if (config.compile){
+      console.log("    "+ cmd +" <source> <output>    Compiles <source> into <output>")
+      console.log("    "+ cmd +" <source> _           Prompt for publishing to random _." + domain, "subdomain")
+    }
+
     console.log("    "+ cmd +" teardown <domain>    Removes <domain> from the web")
-    console.log("    "+ cmd +" list                 Lists all published projects")
-    console.log("    "+ cmd +" login                Authenticate on current machine")
-    console.log("    "+ cmd +" logout               Terminate session on current machine")
-    console.log("    "+ cmd +" whoami               Check authenticated account on current machine")
+    console.log("    "+ cmd +" <cmd>                Where <cmd> is one of: list, login, logout, or whoami")
+    // console.log("    "+ cmd +" list                 Lists all published projects")
+    // console.log("    "+ cmd +" login                Authenticate on current machine")
+    // console.log("    "+ cmd +" logout               Terminate session on current machine")
+    // console.log("    "+ cmd +" whoami               Check authenticated account on current machine")
     // console.log(chalk.grey("  Options:"))
     // console.log("    -p,   --port             Specify port for server to listen on (9000)")
     // console.log("    -i,   --ip               I.P. address for server to bind to (127.0.0.1)")
@@ -40,39 +47,125 @@ module.exports = function(config){
     console.log("    "+ cmd +" .                    Serves current dir on port 9966")
     console.log("    "+ cmd +" . example.com        Publishes current dir to `example.com`")
     console.log("    "+ cmd +" . www                Compiles current dir to `www` directory")
-
     console.log()
     console.log(chalk.grey("  please visit ") + chalk.underline.green(domain) + chalk.grey(" for more information"))
     console.log()
-    process.exit()
+
+    return process.exit()
   }
+
+  var isDomain = function(destination){
+    if (destination == "_"){
+      return true
+    }
+
+    if (destination.indexOf("./") === 0){
+      return false
+    }
+
+    if (destination.split(".").length > 1){
+      return true
+    }
+
+    return false
+  }
+
+
+  var compile = config.compile || function(argv, done){
+    fse.copy(argv["_"][0], argv["_"][1], function(){
+      return done(argv)
+    })
+  }
+
+
+  var findOrCreateProject = function(argv, callback){
+    var projectPath = argv._[0]
+    var projectAbsolutePath = path.resolve(projectPath)
+    fse.readdir(projectAbsolutePath, function(err, contents){
+      var prompt;
+      if (err)
+        prompt = chalk.green("create") + " " + projectPath + "?"
+      if (contents && contents.length < 1)
+        prompt = chalk.green("polulate") + " " + projectPath + "?"
+
+      if (prompt) {
+        read({ prompt: prompt, default: "Y/n" }, function(err,rsp){
+          if (['Y/n', "Y", "y", "sure", "yes", "Yes"].indexOf(rsp) != -1){
+            fse.mkdirp(projectAbsolutePath,function(){
+              config.init(argv, function(){
+                return callback(argv)
+              })
+            })
+          }
+        })
+      } else {
+        return callback(argv)
+      }
+    })
+  }
+
+
+  var compileOrPublish = function(argv, callback){
+    if (argv._.length > 1) {
+      var destination = argv._[1]
+      if (isDomain(destination)){
+        var domain = destination
+        tmp.dir(function(err, tmpPath, cleanupCallback) {
+          if (err) throw err
+          argv._[1] = tmpPath
+          compile(argv, function(argv){
+            var aguments = [tmpPath]
+            platform.publish({
+              postPublish: function(req, next){
+                fse.remove(tmpPath)
+                next()
+              }
+            })({ "_": aguments })
+          })
+        })
+      } else {
+        compile(argv, callback)
+      }
+    }
+  }
+
   
   return function(arg){
-    // need minimist here.
-    var argv = minimist(process.argv.slice())
+    var full = process.argv.slice()
+    var argv = minimist(full.slice(2))
     var cmds = argv["_"]
 
-    if (cmds.length > 2){
-      if (cmds.length > 3){
-        console.log("compiling or publishing...")
-        // compile or
-      } else {
-        console.log("starting server...")
-        // start server
-      }
+    if (cmds.length < 1) return help()
+      
+    var hooks = {}
+    if(cmds[0] === "whoami") {
+      platform.whoami(hooks)(argv._.slice(1))
+    } else if(cmds[0] === "login") {
+      platform.login(hooks)(argv._.slice(1))
+    } else if(cmds[0] === "logout") {
+      platform.logout(hooks)(argv._.slice(1))
+    } else if(cmds[0] === "list") {
+      platform.list(hooks)(argv._.slice(1))
+    } else if(cmds[0] === "teardown") {
+      platform.teardown(hooks)(argv._.slice(1))
     } else {
-      return help(argv)  
+      findOrCreateProject(argv, function(argv){
+        if (argv._.length > 1){
+          compileOrPublish(argv, function(argv){})
+        } else {
+          return config.serve(argv, new Function)
+        }
+      })
     }
-    
   }
 
 }
 
-process.on('SIGINT', function() {
-  console.log("\n")
-  global.ponr == true
-    ? console.log("    Disconnected".green, "-", "Past point of no return, completing in background.")
-    : console.log("    Cancelled".yellow, "-", "Upload aborted, publish not initiated.")
-  console.log()
-  process.exit(1)
-})
+// process.on('SIGINT', function() {
+//   console.log("\n")
+//   global.ponr == true
+//     ? console.log("    Disconnected".green, "-", "Past point of no return, completing in background.")
+//     : console.log("    Cancelled".yellow, "-", "Upload aborted, publish not initiated.")
+//   console.log()
+//   process.exit(1)
+// })

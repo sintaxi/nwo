@@ -1,28 +1,29 @@
 #!/usr/bin/env node
 
-var fs            = require("fs")
 var microplatform = require("./microplatform")
+var fs            = require("fs-extra")
+var path          = require("path")
+var express       = require("express")
 
 microplatform({
   cmd: "pwa",
   name: "pwa platform",
   domain: "pwa.sh",
   
-  init: function(projectDir, done){
-    fs.writeFile(sourceDir + "/index.html", "<!doctype html><h1>hello world</h1>", function(err){
-      return done()
+  init: function(argv, done){
+    fs.writeFile(argv._[0] + "/index.html", "<!doctype html><h1>hello world</h1>", function(err){
+      console.log("generated", argv._[0])
+      return done(argv)
     })
   },
 
-  compile: function(sourceDir, targetDir, done){
-    return done()
-  },
-
-  serve: function(sourceDir, done){
+  serve: function(argv, done){
+    var port = process.env.PORT || argv.p || argv.port || 9000
     var app = express()
-    app.use(express.static(sourceDir))
-    return app.listen(argv, function(){
-      done()
+    app.use(express.static(argv._[0]))
+    app.listen(port, function(){
+      console.log("listening on port", port)
+      return done(argv)
     })
   }
 
