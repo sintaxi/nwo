@@ -14,9 +14,8 @@
     "tmp": "0.0.29",
     "yargs": "^5.0.0"
   },
-  "bin": {
-    "pwa": "./pwa"
-  },
+  "main": "./lib/pwa",
+  "bin": "./bin/pwa",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sintaxi/pwa.git"
