@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+var microplatform = require("../lib/microplatform")
+
+microplatform({
+  cmd: "pwa",
+  name: "pwa platform",
+  domain: "pwa.sh",
+  default: __dirname + "/../default"
+})()

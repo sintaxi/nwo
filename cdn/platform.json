@@ -1,8 +1,0 @@
-
-{
-  "name"        : "PWA",
-  "twitter"     : "@pwa",
-  "email"       : "hello@pwa.sh",
-  "webhook"     : "https://example.com:1337",
-  "slackhook"   : "https://hooks.slack.com/services/asdf/123/abcdefg"
-}
