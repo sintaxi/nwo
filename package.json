@@ -1,11 +1,11 @@
 {
   "name": "pwa",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "open echosystem for an open web. (WIP)",
   "author": "Brock Whitten <brock@sintaxi.com>",
   "license": "ISC",
   "dependencies": {
-    "microplatform": "0.5.0"
+    "microplatform": "0.6.0"
   },
   "main": "./lib/pwa",
   "bin": "./bin/pwa",
