@@ -1,20 +1,20 @@
 {
-  "name": "pwa",
-  "version": "1.7.1",
-  "description": "open echosystem for an open web. (WIP)",
+  "name": "nwo",
+  "version": "0.1.0",
+  "description": "another web publishing tool by sintaxi",
   "author": "Brock Whitten <brock@sintaxi.com>",
   "license": "ISC",
   "dependencies": {
     "microplatform": "0.6.0"
   },
-  "main": "./lib/pwa",
-  "bin": "./bin/pwa",
+  "main": "./lib/nwo",
+  "bin": "./bin/nwo",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sintaxi/pwa.git"
+    "url": "git+https://github.com/sintaxi/nwo.git"
   },
   "bugs": {
-    "url": "https://github.com/sintaxi/pwa/issues"
+    "url": "https://github.com/sintaxi/nwo/issues"
   },
-  "homepage": "https://github.com/sintaxi/pwa#readme"
+  "homepage": "https://github.com/sintaxi/nwo#readme"
 }
