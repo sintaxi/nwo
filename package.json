@@ -1,14 +1,15 @@
 {
   "name": "nwo",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "another web publishing tool by sintaxi",
   "author": "Brock Whitten <brock@sintaxi.com>",
   "license": "ISC",
   "dependencies": {
-    "microplatform": "0.6.0"
+    "microplatform": "0.10.4"
   },
-  "main": "./lib/nwo",
-  "bin": "./bin/nwo",
+  "main": "./src/lib.js",
+  "bin": "./src/cli",
+  "boilerplate": "./boilerplate",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sintaxi/nwo.git"
