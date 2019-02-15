@@ -1,5 +1,8 @@
 
 var microplatform   = require("microplatform")
-var config          = require("../package.json")
-config.boilerplate  = __dirname + "/../boilerplate"
-module.exports      = microplatform(config)
+var pkg             = require("../package.json")
+
+module.exports = microplatform(Object.assign(pkg, {
+  platform: "nwo.sh",
+  boilerplate: __dirname + "/../boilerplate"
+}))

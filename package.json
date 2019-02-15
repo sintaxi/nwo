@@ -1,11 +1,11 @@
 {
   "name": "nwo",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "another web publishing tool by sintaxi",
   "author": "Brock Whitten <brock@sintaxi.com>",
   "license": "ISC",
   "dependencies": {
-    "microplatform": "0.10.5"
+    "microplatform": "0.10.6"
   },
   "main": "./src/lib.js",
   "bin": "./src/cli",
